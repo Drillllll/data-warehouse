@@ -27,22 +27,27 @@ CREATE TABLE Zgloszenia (
     godzinaOdebrania TIME,
     pilnosc INT CHECK (pilnosc >= 1 AND pilnosc <= 5),
     rodzajZgloszenia VARCHAR(50) CHECK (RodzajZgloszenia IN ('drogowe', 'kryminalne', 'inne')),
-	numerDyspozytora INTEGER REFERENCES Dyspozytorzy
+	numerDyspozytora INTEGER REFERENCES Dyspozytorzy,
+	idZdarzenia INTEGER REFERENCES Zdarzenia,
 );
 
+
 CREATE TABLE UczestnicyZdarzenia (
-	idUczestnika INTEGER,
-	pesel CHAR(11) REFERENCES Osoba primary key,
+	idUczestnika INTEGER primary key,
+	pesel CHAR(11) REFERENCES Osoba,
 	idZdarzenia INTEGER REFERENCES Zdarzenia
 	);
+
 
 CREATE TABLE Interwencje (
     idInterwencji INTEGER PRIMARY KEY,
     godzinaDojazdu TIME,
-    dlugoscInterwencji INT,
-    dataInterwencji DATE,
+    dlugoscInterwencji DATE,
 	idZg³oszenia INTEGER REFERENCES Zgloszenia
 );
+
+
+
 
 Create Table Funkcjonariusze (
 	idFunkcjonariusza INTEGER PRIMARY KEY,

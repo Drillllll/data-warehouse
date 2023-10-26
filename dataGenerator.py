@@ -2,6 +2,7 @@ import csv
 import uuid
 import random
 from datetime import datetime, timedelta
+from copy import copy
 
 F = 20
 Fmin = 1
@@ -81,18 +82,29 @@ def generate_dyspozytorzy(D, Dmin, pesele):
     return numery_dyspozytorow, left_pesels
 
 
-def generate_uczestnicy(U, Umin, pesele):
+def generate_uczestnicy(U, Umin, pesele, id_zdarzenia, Z):
+
+
     id_uczestnicy = []
     for i in range(Umin, Umin + U + 1):
         id_uczestnicy.append(i)
     pesel_uczestnicy = pesele[:U]
     left_pesels = pesele[U:]
-    data = list(zip(id_uczestnicy, pesel_uczestnicy))
+
+    wybrane_zdarzenia = []
+    for j in range(Z):
+        wybrane_zdarzenia.append(id_zdarzenia[j])
+    for k in range(Z, U):
+        wybrane_zdarzenia.append(random.choice(id_zdarzenia))
+
+
+
+    data = list(zip(id_uczestnicy, pesel_uczestnicy, wybrane_zdarzenia))
     with open(folderPath + 'uczestnicy.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
 
         # Write the data to the CSV file
-        writer.writerow(['id uczestnika', 'pesel'])  # Write header
+        writer.writerow(['id uczestnika', 'pesel', 'id_zdarzenia'])  # Write header
         writer.writerows(data)
     return id_uczestnicy, left_pesels
 
@@ -123,7 +135,7 @@ def generate_zdarzenia(Z, Zmin):
     daty_zdarzen = [start_date + timedelta(days=random.randint(0, (end_date - start_date).days)) for _ in range(Z)]
     daty_zdarzen_string = [d.strftime('%Y-%m-%d') for d in daty_zdarzen]
 
-    # UTWORZYC CSV !!!!!!!!!!!!!!!!!!!
+
     data = list(zip(id_zdarzenia, adresy, godziny_zdarzen_string, daty_zdarzen_string))
     with open(folderPath + 'zdarzenia.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -142,10 +154,10 @@ def generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarze
 
     godziny_pozniejsze = []
     # Ile godzin dodac
-    ilosc_godzin = 1
     for godzina_string in godziny_zdarzen:
         godzina = datetime.strptime(godzina_string, "%H:%M:%S")
-        pozniejsza_godzina = godzina + timedelta(hours=ilosc_godzin)
+        losowa_liczba_minut = random.randint(1, 5)
+        pozniejsza_godzina = godzina + timedelta(minutes=losowa_liczba_minut)
         godziny_pozniejsze.append(pozniejsza_godzina.strftime("%H:%M:%S"))
 
     pilnosci = []
@@ -182,8 +194,8 @@ def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen):
 
     dlugosc_interwencji_string = []
     for _ in range(I):
-        godzina = random.randint(0, 23)
-        minuty = random.randint(0, 59)
+        godzina = random.randint(0, 1)
+        minuty = random.randint(0, 30)
         sekundy = random.randint(0, 59)
         losowa_godzina = str(godzina) + ':' + str(minuty) + ':' + str(sekundy)
         dlugosc_interwencji_string.append(losowa_godzina)
@@ -195,15 +207,16 @@ def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen):
         id_zgloszen_csv.append(id_zgloszen[j])
 
     godziny_interwencji = []
-    # Ile godzin dodac
-    ilosc_godzin = 1
+
     for k in range(Z):
         godzina = datetime.strptime(godziny_zgloszen[k], "%H:%M:%S")
-        pozniejsza_godzina = godzina + timedelta(hours=ilosc_godzin)
+        losowa_liczba_minut = random.randint(5, 15)
+        pozniejsza_godzina = godzina + timedelta( minutes=losowa_liczba_minut)
         godziny_interwencji.append(pozniejsza_godzina.strftime("%H:%M:%S"))
     for l in range(I-Z):
         godzina = datetime.strptime(godziny_zgloszen[l], "%H:%M:%S")
-        pozniejsza_godzina = godzina + timedelta(hours=ilosc_godzin)
+        losowa_liczba_minut = random.randint(5, 15)
+        pozniejsza_godzina = godzina + timedelta( minutes=losowa_liczba_minut)
         godziny_interwencji.append(pozniejsza_godzina.strftime("%H:%M:%S"))
 
     data = list(zip(id_interwencji, godziny_interwencji, dlugosc_interwencji_string, id_zgloszen_csv))
@@ -214,7 +227,22 @@ def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen):
         writer.writerow(['id_interwencji', 'godziny_interwencji', 'dlugosc_interwencji', 'id_zgloszen'])  # Write header
         writer.writerows(data)
 
+    return id_interwencji
 
+
+def generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funkcjonarjuszy):
+    wybrani_funkcjonariusze = []
+    for i in range(I):
+        wybrani_funkcjonariusze.append(random.choice(id_funkcjonarjuszy))
+    pass
+
+    data = list(zip(wybrani_funkcjonariusze, id_interwencji))
+    with open(folderPath + 'funkcjonariusze_interwencje.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+
+        # Write the data to the CSV file
+        writer.writerow(['id_funkcjonariuszy', 'id_interwencji'])  # Write header
+        writer.writerows(data)
 
 if __name__ == "__main__":
     print("GENERATOR DANYCH V. 3.0.3 - MINDSET MILIONERA")
@@ -222,11 +250,16 @@ if __name__ == "__main__":
     pesele = generate_osoby(F + D + U)
     id_funckjonariuszy, pesele = generate_funkjonariusze(F, Fmin, pesele)
     numery_dyspozytorow, pesele = generate_dyspozytorzy(D, Dmin, pesele)
-    id_uczestnikow, _ = generate_uczestnicy(U, Umin, pesele)
+
 
     id_zdarzen, godziny_zdarzen = generate_zdarzenia(Z, Zmin)
+
+    id_uczestnikow, _ = generate_uczestnicy(U, Umin, pesele, id_zdarzen, Z)
+
     id_zgloszen, godziny_zgloszen = generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarzen)
-    generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen)
+    id_interwencji = generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen)
+    generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funckjonariuszy)
+
 
 # TODO
 # widzieliscie kiedys ciezarna lalke barbie
