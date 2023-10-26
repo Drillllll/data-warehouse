@@ -175,18 +175,45 @@ def generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarze
         writer.writerows(data)
     return id_zgloszenia, godziny_pozniejsze
 
-def generate_interwencje(I, Imin):
+def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen):
     id_interwencji = []
     for i in range(Imin, Imin + I + 1):
         id_interwencji.append(i)
 
-        # idInterwencji
-        # godzinaDojazdu
-        # dlugoscInterwencji
-        # dataInterwencji
-        # idZgłoszenia
-        # Zgloszenia
-    pass
+    dlugosc_interwencji_string = []
+    for _ in range(I):
+        godzina = random.randint(0, 23)
+        minuty = random.randint(0, 59)
+        sekundy = random.randint(0, 59)
+        losowa_godzina = str(godzina) + ':' + str(minuty) + ':' + str(sekundy)
+        dlugosc_interwencji_string.append(losowa_godzina)
+
+    id_zgloszen_csv = []
+    for i in range(Z):
+        id_zgloszen_csv.append(id_zgloszen[i])
+    for j in range(I-Z): #lecimy od poczatku
+        id_zgloszen_csv.append(id_zgloszen[j])
+
+    godziny_interwencji = []
+    # Ile godzin dodac
+    ilosc_godzin = 1
+    for k in range(Z):
+        godzina = datetime.strptime(godziny_zgloszen[k], "%H:%M:%S")
+        pozniejsza_godzina = godzina + timedelta(hours=ilosc_godzin)
+        godziny_interwencji.append(pozniejsza_godzina.strftime("%H:%M:%S"))
+    for l in range(I-Z):
+        godzina = datetime.strptime(godziny_zgloszen[l], "%H:%M:%S")
+        pozniejsza_godzina = godzina + timedelta(hours=ilosc_godzin)
+        godziny_interwencji.append(pozniejsza_godzina.strftime("%H:%M:%S"))
+
+    data = list(zip(id_interwencji, godziny_interwencji, dlugosc_interwencji_string, id_zgloszen_csv))
+    with open(folderPath + 'interwencje.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+
+        # Write the data to the CSV file
+        writer.writerow(['id_interwencji', 'godziny_interwencji', 'dlugosc_interwencji', 'id_zgloszen'])  # Write header
+        writer.writerows(data)
+
 
 
 if __name__ == "__main__":
@@ -199,6 +226,7 @@ if __name__ == "__main__":
 
     id_zdarzen, godziny_zdarzen = generate_zdarzenia(Z, Zmin)
     id_zgloszen, godziny_zgloszen = generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarzen)
+    generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen)
 
 # TODO
 # widzieliscie kiedys ciezarna lalke barbie
