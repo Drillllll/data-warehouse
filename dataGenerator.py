@@ -4,22 +4,14 @@ import random
 from datetime import datetime, timedelta
 from copy import copy
 
-F = 20
-Fmin = 1
-D = 10
-Dmin = 1
-U = 200
-Umin = 1
-Z = 100
-Zmin = 1
-I = 110
-Imin = 1
-folderPath = 'dane/'
+
+
+
 
 
 # generuje dane dla zbioru encji Osoby w csv
 # zwraca tablice peseli
-def generate_osoby(N):
+def generate_osoby(N, folderPath):
     names_with_sex = []
     with open('input/names.txt', 'r') as file:
         for line in file:
@@ -49,7 +41,7 @@ def generate_osoby(N):
 
 
 # generuje csv dla funckjonariuszy i zwraca tablice id ufnkcjinariuszy i zaktualizowane pesele
-def generate_funkjonariusze(F, Fmin, pesele):
+def generate_funkjonariusze(F, Fmin, pesele, folderPath):
     id_funckjonariuszy = []
     for i in range(Fmin, Fmin + F + 1):
         id_funckjonariuszy.append(i)
@@ -66,7 +58,7 @@ def generate_funkjonariusze(F, Fmin, pesele):
     return id_funckjonariuszy, left_pesels
 
 
-def generate_dyspozytorzy(D, Dmin, pesele):
+def generate_dyspozytorzy(D, Dmin, pesele, folderPath):
     numery_dyspozytorow = []
     for i in range(Dmin, Dmin + D + 1):
         numery_dyspozytorow.append(i)
@@ -82,7 +74,7 @@ def generate_dyspozytorzy(D, Dmin, pesele):
     return numery_dyspozytorow, left_pesels
 
 
-def generate_uczestnicy(U, Umin, pesele, id_zdarzenia, Z):
+def generate_uczestnicy(U, Umin, pesele, id_zdarzenia, Z, folderPath):
 
 
     id_uczestnicy = []
@@ -109,7 +101,7 @@ def generate_uczestnicy(U, Umin, pesele, id_zdarzenia, Z):
     return id_uczestnicy, left_pesels
 
 
-def generate_zdarzenia(Z, Zmin):
+def generate_zdarzenia(Z, Zmin, folderPath, zdarzenia_T_start, zdarzenia_T_end):
     id_zdarzenia = []
     for i in range(Zmin, Zmin + Z + 1):
         id_zdarzenia.append(i)
@@ -117,7 +109,7 @@ def generate_zdarzenia(Z, Zmin):
     # adres
     with open('input/ulice.txt', 'r') as file:
         lines = file.readlines()
-    ulice = random.sample(lines, Z)
+    ulice = random.choices(lines, k=Z)
     adresy = [f"{line.strip()} {random.randint(1, 50)}" for line in ulice]
 
     # godzina
@@ -130,8 +122,8 @@ def generate_zdarzenia(Z, Zmin):
         godziny_zdarzen_string.append(losowa_godzina)
 
     # data
-    start_date = datetime(2021, 1, 1)
-    end_date = datetime(2023, 12, 31)
+    start_date = zdarzenia_T_start
+    end_date = zdarzenia_T_end
     daty_zdarzen = [start_date + timedelta(days=random.randint(0, (end_date - start_date).days)) for _ in range(Z)]
     daty_zdarzen_string = [d.strftime('%Y-%m-%d') for d in daty_zdarzen]
 
@@ -147,7 +139,7 @@ def generate_zdarzenia(Z, Zmin):
     return id_zdarzenia, godziny_zdarzen_string
 
 
-def generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarzen):
+def generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarzen, folderPath):
     id_zgloszenia = []
     for i in range(Zmin, Zmin + Z + 1):
         id_zgloszenia.append(i)
@@ -187,7 +179,7 @@ def generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarze
         writer.writerows(data)
     return id_zgloszenia, godziny_pozniejsze
 
-def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen):
+def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen, folderPath):
     id_interwencji = []
     for i in range(Imin, Imin + I + 1):
         id_interwencji.append(i)
@@ -230,7 +222,7 @@ def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen):
     return id_interwencji
 
 
-def generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funkcjonarjuszy):
+def generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funkcjonarjuszy, folderPath):
     wybrani_funkcjonariusze = []
     for i in range(I):
         wybrani_funkcjonariusze.append(random.choice(id_funkcjonarjuszy))
@@ -243,22 +235,60 @@ def generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funkcjonarjuszy):
         # Write the data to the CSV file
         writer.writerow(['id_funkcjonariuszy', 'id_interwencji'])  # Write header
         writer.writerows(data)
+def addUpdatedRecordsOsoby():
+
+    plik_zrodlowy = 'dane/osoby.csv'
+    plik_docelowy = 'dane2/osoby.csv'
+    n = 5  # Ilość linii do pobrania
+
+    # Otwórz plik źródłowy
+    with open(plik_zrodlowy, 'r', newline='') as csvfile_src:
+        reader = csv.reader(csvfile_src)
+
+        # Pomijamy pierwszą linię (nagłówek)
+        next(reader, None)
+
+        # Pobieramy N następnych linii, zmieniamy imiona i nazwiska i zapisujemy je w pliku docelowym
+        new_rows = []
+        for i, row in enumerate(reader):
+            if i < n:
+                # Zmiana imion i nazwisk (tutaj zakładamy, że imię i nazwisko to druga i trzecia kolumna)
+                #row[1] = "zmienione imie"
+                row[2] = "NoweNazwisko" + str(i)
+                new_rows.append(row)
+
+        # Otwórz plik docelowy w trybie 'r+' (czytanie i pisanie)
+        with open(plik_docelowy, 'a', newline='') as csvfile_dest:
+            writer = csv.writer(csvfile_dest)
+
+            # Dodaj nowe wiersze na koniec pliku docelowego
+            writer.writerows(new_rows)
+
+
+def generate(F, Fmin, D, Dmin, U, Umin, Z, Zmin, I, Imin,  zdarzenia_T_start, zdarzenia_T_end, folderPath):
+    pesele = generate_osoby(F + D + U, folderPath)
+    id_funckjonariuszy, pesele = generate_funkjonariusze(F, Fmin, pesele, folderPath)
+    numery_dyspozytorow, pesele = generate_dyspozytorzy(D, Dmin, pesele, folderPath)
+    id_zdarzen, godziny_zdarzen = generate_zdarzenia(Z, Zmin, folderPath, zdarzenia_T_start, zdarzenia_T_end)
+    id_uczestnikow, _ = generate_uczestnicy(U, Umin, pesele, id_zdarzen, Z, folderPath)
+    id_zgloszen, godziny_zgloszen = generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarzen, folderPath)
+    id_interwencji = generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen, folderPath)
+    generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funckjonariuszy, folderPath)
 
 if __name__ == "__main__":
     print("GENERATOR DANYCH V. 3.0.3 - MINDSET MILIONERA")
     print("kodowany in Gogi Case")
-    pesele = generate_osoby(F + D + U)
-    id_funckjonariuszy, pesele = generate_funkjonariusze(F, Fmin, pesele)
-    numery_dyspozytorow, pesele = generate_dyspozytorzy(D, Dmin, pesele)
 
 
-    id_zdarzen, godziny_zdarzen = generate_zdarzenia(Z, Zmin)
 
-    id_uczestnikow, _ = generate_uczestnicy(U, Umin, pesele, id_zdarzen, Z)
+    generate(F = 20, Fmin = 1, D = 10, Dmin = 1, U = 200, Umin = 1, Z = 100, Zmin = 1, I = 110, Imin = 1, \
+        zdarzenia_T_start = datetime(2019, 1, 1), zdarzenia_T_end = datetime(2020, 12, 31), folderPath = 'dane/')
 
-    id_zgloszen, godziny_zgloszen = generate_zgloszenia(Z, Zmin, id_zdarzen, numery_dyspozytorow, godziny_zdarzen)
-    id_interwencji = generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen)
-    generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funckjonariuszy)
+
+    generate(F=100, Fmin=21, D=100, Dmin=11, U=5000, Umin=201, Z=2500, Zmin=101, I=3000, Imin=111, \
+             zdarzenia_T_start=datetime(2021, 1, 1), zdarzenia_T_end=datetime(2022, 12, 31), folderPath='dane2/')
+
+    addUpdatedRecordsOsoby()
 
 
 # TODO
