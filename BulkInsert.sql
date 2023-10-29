@@ -83,3 +83,4 @@ WITH (
 
 select * from dbo.Funkcjonariusze_Interwencje
 
+select * from Osoba where pesel='86925415719'
