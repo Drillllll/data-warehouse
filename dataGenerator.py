@@ -3,6 +3,7 @@ import uuid
 import random
 from datetime import datetime, timedelta
 from copy import copy
+import pandas as pd
 
 
 
@@ -25,7 +26,7 @@ def generate_osoby(N, folderPath):
     names, sex = zip(*name_sex)
 
     start_date = datetime(1960, 1, 1)
-    end_date = datetime(2002, 12, 31)
+    end_date = datetime(2000, 12, 31)
     birth = [start_date + timedelta(days=random.randint(0, (end_date - start_date).days)) for _ in range(N)]
     birth_strings = [date.strftime('%Y-%m-%d') for date in birth]
 
@@ -275,11 +276,11 @@ def generate(F, Fmin, D, Dmin, U, Umin, Z, Zmin, I, Imin,  zdarzenia_T_start, zd
     id_interwencji = generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen, folderPath)
     generate_funkcjonarjusze_interwencje(id_interwencji, I, id_funckjonariuszy, folderPath)
 
+
+
 if __name__ == "__main__":
     print("GENERATOR DANYCH V. 3.0.3 - MINDSET MILIONERA")
     print("kodowany in Gogi Case")
-
-
 
     generate(F = 20, Fmin = 1, D = 10, Dmin = 1, U = 200, Umin = 1, Z = 100, Zmin = 1, I = 110, Imin = 1, \
         zdarzenia_T_start = datetime(2019, 1, 1), zdarzenia_T_end = datetime(2020, 12, 31), folderPath = 'dane/')
@@ -287,6 +288,7 @@ if __name__ == "__main__":
 
     generate(F=100, Fmin=21, D=100, Dmin=11, U=5000, Umin=201, Z=2500, Zmin=101, I=3000, Imin=111, \
              zdarzenia_T_start=datetime(2021, 1, 1), zdarzenia_T_end=datetime(2022, 12, 31), folderPath='dane2/')
+
 
     addUpdatedRecordsOsoby()
 
