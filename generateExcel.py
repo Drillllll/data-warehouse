@@ -85,7 +85,9 @@ def generateExcel2():
 
     result['wyksztalcenie'] = [random.choice(education_levels) for _ in range(len(result))]
     result = result[desired_columns]
-    merged_result=pd.concat([excel,result],axis=0)
+    # merged_result=pd.concat([excel,result],axis=0)
+    merged_df = excel.set_index('pesel').combine_first(result.set_index('pesel')).reset_index()
+
     merged_result = result[desired_columns]
     merged_result.to_csv('daneExcel/excelDane2.csv', index=False)
 
