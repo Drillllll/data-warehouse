@@ -190,8 +190,9 @@ def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen, folderPath):
         godzina = random.randint(0, 1)
         minuty = random.randint(0, 30)
         sekundy = random.randint(0, 59)
-        losowa_godzina = str(godzina) + ':' + str(minuty) + ':' + str(sekundy)
-        dlugosc_interwencji_string.append(losowa_godzina)
+        # losowa_godzina = str(godzina) + ':' + str(minuty) + ':' + str(sekundy)
+        czas_interwencji = godzina*60+minuty
+        dlugosc_interwencji_string.append(czas_interwencji)
 
     id_zgloszen_csv = []
     for i in range(Z):
@@ -212,7 +213,7 @@ def generate_interwencje(I, Z, Imin, id_zgloszen, godziny_zgloszen, folderPath):
         pozniejsza_godzina = godzina + timedelta( minutes=losowa_liczba_minut)
         godziny_interwencji.append(pozniejsza_godzina.strftime("%H:%M:%S"))
 
-    data = list(zip(id_interwencji, godziny_interwencji, dlugosc_interwencji_string, id_zgloszen_csv))
+    data =list(zip(id_interwencji,godziny_interwencji,id_zgloszen_csv,dlugosc_interwencji_string))
     with open(folderPath + 'interwencje.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
 
@@ -287,7 +288,7 @@ if __name__ == "__main__":
 
 
     generate(F=100, Fmin=21, D=100, Dmin=11, U=5000, Umin=201, Z=2500, Zmin=101, I=3000, Imin=111, \
-             zdarzenia_T_start=datetime(2021, 1, 1), zdarzenia_T_end=datetime(2022, 12, 31), folderPath='dane2/')
+             zdarzenia_T_start=datetime(2021, 1, 1), zdarzenia_T_end=datetime(2021, 12, 31), folderPath='dane2/')
 
 
     addUpdatedRecordsOsoby()
